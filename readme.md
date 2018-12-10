@@ -4,4 +4,4 @@ Need Testers on lower firmware to check if vulnerable or not.
 
 ![poc](https://i.postimg.cc/jq8Nh93h/20181210114049.png)
 
-[Owner of Exploit](https://raw.githubusercontent.com/externalist/exploit_playground/master/jsc_ConcatMemcpy_infoleak/ileak.html)
+[Source](https://raw.githubusercontent.com/externalist/exploit_playground/master/jsc_ConcatMemcpy_infoleak/ileak.html)
